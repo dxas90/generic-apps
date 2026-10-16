@@ -1,0 +1,22 @@
+[tools]
+helm = "4.3.1"
+kustomize = "5.8.3"
+
+[tasks.validate]
+description = "Kustomize-build every app"
+run = """
+set -euo pipefail
+fail=0
+for a in apps/*/; do
+  if kustomize build "$a" >/dev/null; then
+    echo "OK   ${a%/}"
+  else
+    echo "FAIL ${a%/}"; fail=1
+  fi
+done
+exit $fail
+"""
+
+[tasks."validate/helm"]
+description = "Render every pinned Helm chart with its values"
+run = "uv run --with pyyaml python scripts/render-helm.py"

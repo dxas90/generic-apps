@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: spegel
+  namespace: kube-system
+spec:
+  interval: 15m
+  timeout: 10m
+  releaseName: spegel
+  maxHistory: 3
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+  - kind: ConfigMap
+    name: spegel-values
+    valuesKey: values.yaml
+  chartRef:
+    kind: OCIRepository
+    name: spegel

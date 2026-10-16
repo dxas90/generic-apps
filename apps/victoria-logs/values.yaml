@@ -1,0 +1,12 @@
+server:
+  retentionPeriod: 7d
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  persistentVolume:
+    enabled: true
+    size: 10Gi

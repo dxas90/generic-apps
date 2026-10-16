@@ -1,0 +1,78 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+
+  extends: [
+    'config:recommended',
+  ],
+
+  // Dependency dashboard
+  dependencyDashboard: true,
+  dependencyDashboardTitle: 'Renovate Dashboard 🤖',
+
+  // Notifications
+  suppressNotifications: [
+    'prEditedNotification',
+    'prIgnoreNotification',
+  ],
+
+  // Schedule: midnight to 5 AM (Warsaw time)
+  timezone: 'Europe/Warsaw',
+  schedule: [
+    '* 0-4 * * *',
+  ],
+
+  // PR management
+  rebaseWhen: 'conflicted',
+  pruneStaleBranches: true,
+  labels: ['dependencies', 'renovate'],
+
+  // Merge only after passing checks
+  automerge: false,
+  automergeType: 'pr',
+  ignoreTests: false,
+
+  // Delay new releases by 3 days
+  minimumReleaseAge: '3 days',
+
+  // FluxCD support (.yaml and .yml) — tracks HelmRelease chart versions and OCIRepository tags.
+  flux: {
+    managerFilePatterns: [
+      '/\\.ya?ml$/',
+    ],
+  },
+
+  // mise tool pins in mise.toml
+  mise: {
+    managerFilePatterns: [
+      '/(^|/)mise\\.toml$/',
+    ],
+  },
+
+  packageRules: [
+    {
+      description: 'Automerge minor and patch updates',
+      matchUpdateTypes: ['minor', 'patch'],
+      automerge: true,
+    },
+    {
+      description: 'Never automerge major upgrades',
+      matchUpdateTypes: ['major'],
+      automerge: false,
+    },
+    {
+      description: 'Group Grafana charts',
+      matchPackageNames: ['/^ghcr\\.io\\/grafana(-community)?\\//'],
+      groupName: 'grafana charts',
+    },
+    {
+      description: 'Group VictoriaMetrics charts',
+      matchPackageNames: ['/victoriametrics\\/helm-charts/'],
+      groupName: 'victoriametrics charts',
+    },
+    {
+      description: 'Group Istio releases (shared chart version)',
+      matchFileNames: ['apps/istio/**'],
+      groupName: 'istio',
+    },
+  ],
+}

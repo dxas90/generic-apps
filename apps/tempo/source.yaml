@@ -1,0 +1,13 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: tempo
+  namespace: observability
+spec:
+  interval: 1h
+  url: oci://ghcr.io/grafana-community/helm-charts/tempo
+  ref:
+    tag: 1.24.4
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy

@@ -1,0 +1,30 @@
+deployment:
+  replicas: 1
+ports:
+  web:
+    port: 8000
+    exposedPort: 80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    port: 8443
+    exposedPort: 443
+api:
+  dashboard: true
+  insecure: false
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addServicesLabels: true
+    addRoutersLabels: true
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 2000m
+    memory: 1Gi

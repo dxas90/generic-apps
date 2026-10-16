@@ -1,0 +1,14 @@
+fullnameOverride: k8s-gateway
+domain: example.invalid
+ttl: 1
+service:
+  type: LoadBalancer
+  port: 53
+  externalTrafficPolicy: Cluster
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 1000m
+    memory: 512Mi

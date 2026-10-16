@@ -1,0 +1,26 @@
+# Safe defaults: Cilium alongside kube-proxy. For kube-proxy replacement set
+# kubeProxyReplacement: true plus k8sServiceHost/k8sServicePort of your API server.
+ipam:
+  mode: kubernetes
+operator:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: false
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 2000m
+    memory: 1Gi

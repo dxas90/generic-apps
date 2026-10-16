@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-logs
+  namespace: observability
+spec:
+  interval: 15m
+  timeout: 10m
+  releaseName: victoria-logs
+  maxHistory: 3
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+  - kind: ConfigMap
+    name: victoria-logs-values
+    valuesKey: values.yaml
+  chartRef:
+    kind: OCIRepository
+    name: victoria-logs

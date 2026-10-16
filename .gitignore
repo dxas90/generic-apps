@@ -1,0 +1,9 @@
+/.tools/
+/.mise/
+__pycache__/
+*.pyc
+.env
+*.key
+*.agekey
+kubeconfig*
+!scripts

@@ -1,0 +1,16 @@
+config:
+  jetstream:
+    enabled: true
+    fileStore:
+      pvc:
+        size: 10Gi
+  cluster:
+    enabled: false
+container:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi

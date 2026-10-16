@@ -1,0 +1,32 @@
+controller:
+  type: deployment
+  replicas: 1
+alloy:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  extraPorts:
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
+    protocol: TCP
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
+    protocol: TCP
+  configMap:
+    create: false
+    name: alloy-config
+    key: config.alloy
+configReloader:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: 1000m
+      memory: 64Mi

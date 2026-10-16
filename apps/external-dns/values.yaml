@@ -1,0 +1,13 @@
+provider:
+  name: aws
+policy: upsert-only
+domainFilters:
+- example.invalid
+txtOwnerId: configure-before-enabling
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 1000m
+    memory: 512Mi

@@ -1,0 +1,18 @@
+# LocalPV hostpath only; replicated/LVM/ZFS engines disabled.
+engines:
+  local:
+    lvm:
+      enabled: false
+    zfs:
+      enabled: false
+  replicated:
+    mayastor:
+      enabled: false
+openebs-crds:
+  csi:
+    volumeSnapshots:
+      enabled: false
+loki:
+  enabled: false
+alloy:
+  enabled: false

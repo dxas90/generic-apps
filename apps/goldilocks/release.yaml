@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: goldilocks
+  namespace: goldilocks
+spec:
+  interval: 15m
+  timeout: 10m
+  releaseName: goldilocks
+  maxHistory: 3
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+  - kind: ConfigMap
+    name: goldilocks-values
+    valuesKey: values.yaml
+  chart:
+    spec:
+      chart: goldilocks
+      version: 11.2.0
+      sourceRef:
+        kind: HelmRepository
+        name: goldilocks
