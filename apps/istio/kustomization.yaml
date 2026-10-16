@@ -1,7 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- namespace.yaml
 - source.yaml
 - release-base.yaml
 - release-istiod.yaml
@@ -9,19 +8,15 @@ resources:
 - release-ztunnel.yaml
 configMapGenerator:
 - name: istio-base-values
-  namespace: istio-system
   files:
   - values.yaml=values-base.yaml
 - name: istiod-values
-  namespace: istio-system
   files:
   - values.yaml=values-istiod.yaml
 - name: istio-cni-values
-  namespace: istio-system
   files:
   - values.yaml=values-cni.yaml
 - name: ztunnel-values
-  namespace: istio-system
   files:
   - values.yaml=values-ztunnel.yaml
 generatorOptions:

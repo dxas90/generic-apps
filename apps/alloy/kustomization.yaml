@@ -5,11 +5,9 @@ resources:
 - release.yaml
 configMapGenerator:
 - name: alloy-values
-  namespace: observability
   files:
   - values.yaml
 - name: alloy-config
-  namespace: observability
   files:
   - config.alloy
 generatorOptions:

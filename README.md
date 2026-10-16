@@ -22,8 +22,7 @@ apps/<name>/
 ├── kustomization.yaml   # resources + configMapGenerator for <name>-values
 ├── source.yaml          # HelmRepository or OCIRepository
 ├── release.yaml         # HelmRelease (valuesFrom the generated ConfigMap)
-├── values.yaml          # plain Helm values -> baked into the ConfigMap
-└── namespace.yaml       # only when the app owns a dedicated namespace
+└── values.yaml          # plain Helm values -> baked into the ConfigMap
 ```
 
 Multi-release apps (istio) use one shared source and a values file per release:
@@ -31,7 +30,6 @@ Multi-release apps (istio) use one shared source and a values file per release:
 ```text
 apps/istio/
 ├── kustomization.yaml
-├── namespace.yaml
 ├── source.yaml             # one HelmRepository shared by all releases
 ├── release-base.yaml       # istio-base
 ├── release-istiod.yaml     # istiod
@@ -73,46 +71,73 @@ To override per-environment, regenerate the **same** ConfigMap name with
 
 ## Apps (34)
 
-| App | Namespace | Chart source |
-|-----|-----------|--------------|
-| cert-manager | cert-manager | charts.jetstack.io |
-| external-secrets | external-secrets | charts.external-secrets.io |
-| external-dns | external-dns | kubernetes-sigs/external-dns |
-| metrics-server | kube-system | kubernetes-sigs/metrics-server |
-| reloader | kube-system | stakater |
-| coredns | kube-system | ghcr/coredns (OCI) |
-| spegel | kube-system | ghcr/spegel-org (OCI) |
-| csi-driver-nfs | kube-system | kubernetes-csi |
-| cilium | kube-system | quay.io/cilium (OCI) |
-| keda | keda | kedacore |
-| kyverno | kyverno | kyverno |
-| node-feature-discovery | node-feature-discovery | kubernetes-sigs |
-| cloudnative-pg | cnpg-system | cloudnative-pg |
-| dragonfly-operator | dragonfly-system | ghcr/dragonflydb (OCI) |
-| nats | nats | nats-io |
-| vault | vault | helm.releases.hashicorp.com |
-| openebs | openebs | openebs.github.io |
-| argocd | argocd | argoproj |
-| ingress-nginx | ingress-nginx | kubernetes/ingress-nginx |
-| traefik | traefik | traefik.github.io |
-| k8s-gateway | k8s-gateway | ori-edge/k8s_gateway |
-| istio | istio-system | istio-release.storage.googleapis.com (4 releases) |
-| vpa | vpa | charts.fairwinds.com |
-| goldilocks | goldilocks | charts.fairwinds.com |
-| kube-prometheus-stack | observability | ghcr/prometheus-community (OCI) |
-| grafana-operator | observability | ghcr/grafana (OCI) |
-| loki | observability | ghcr/grafana-community (OCI) |
-| tempo | observability | ghcr/grafana-community (OCI) |
-| alloy | observability | grafana.github.io |
-| fluent-bit | observability | fluent.github.io |
-| blackbox-exporter | observability | ghcr/prometheus-community (OCI) |
-| gatus | observability | twin.github.io |
-| victoria-metrics | observability | ghcr/victoriametrics (OCI) |
-| victoria-logs | observability | ghcr/victoriametrics (OCI) |
+| App | Chart source |
+|-----|--------------|
+| cert-manager | charts.jetstack.io |
+| external-secrets | charts.external-secrets.io |
+| external-dns | kubernetes-sigs/external-dns |
+| metrics-server | kubernetes-sigs/metrics-server |
+| reloader | stakater |
+| coredns | ghcr/coredns (OCI) |
+| spegel | ghcr/spegel-org (OCI) |
+| csi-driver-nfs | kubernetes-csi |
+| cilium | quay.io/cilium (OCI) |
+| keda | kedacore |
+| kyverno | kyverno |
+| node-feature-discovery | kubernetes-sigs |
+| cloudnative-pg | cloudnative-pg |
+| dragonfly-operator | ghcr/dragonflydb (OCI) |
+| nats | nats-io |
+| vault | helm.releases.hashicorp.com |
+| openebs | openebs.github.io |
+| argocd | argoproj |
+| ingress-nginx | kubernetes/ingress-nginx |
+| traefik | traefik.github.io |
+| k8s-gateway | ori-edge/k8s_gateway |
+| istio | istio-release.storage.googleapis.com (4 releases) |
+| vpa | charts.fairwinds.com |
+| goldilocks | charts.fairwinds.com |
+| kube-prometheus-stack | ghcr/prometheus-community (OCI) |
+| grafana-operator | ghcr/grafana (OCI) |
+| loki | ghcr/grafana-community (OCI) |
+| tempo | ghcr/grafana-community (OCI) |
+| alloy | grafana.github.io |
+| fluent-bit | fluent.github.io |
+| blackbox-exporter | ghcr/prometheus-community (OCI) |
+| gatus | twin.github.io |
+| victoria-metrics | ghcr/victoriametrics (OCI) |
+| victoria-logs | ghcr/victoriametrics (OCI) |
 
-Apps that own their namespace ship a `namespace.yaml`; the rest expect theirs
-(`observability`, `kube-system`, `argocd`, `cert-manager`, …) to be created
-by your platform layer.
+## Namespace ownership
+
+The catalog declares no namespaces: no `metadata.namespace`, generator namespace,
+or Namespace resources. Sources, HelmReleases and generated ConfigMaps stay together
+in the namespace selected by the consumer. `sourceRef`, `valuesFrom` and `dependsOn`
+references remain local to that namespace.
+
+Create the destination namespace in your provisioning/platform layer first. Then
+set `spec.targetNamespace` on the consuming Flux Kustomization, or use a local
+Kustomize overlay:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: my-platform
+resources:
+- ../../apps/cert-manager
+```
+
+Flux `spec.targetNamespace` does not itself create the namespace. With no explicit
+namespace selection, Kubernetes defaults apply; this is not a deployment choice
+made by the catalog.
+
+Alloy's Tempo endpoint and Fluent Bit's Loki endpoint use same-namespace service
+DNS. If these backends live elsewhere, override those endpoints in the consumer.
+Chart defaults can still contain namespace assumptions: particularly Istio control
+plane discovery/CNI integration and system addons. Set the chart-specific namespace
+values when relocating them; removing manifest namespaces does not make every
+upstream chart portable without configuration. Cluster-scoped CRDs/RBAC also remain
+cluster-scoped, so arbitrary multiple installations are not implied.
 
 ## Validate
 
@@ -124,8 +149,9 @@ kustomize build apps/<name>
 for a in apps/*/; do kustomize build "$a" >/dev/null && echo "OK $a"; done
 ```
 
-All 34 apps build with kustomize v5 and every chart renders cleanly with
-`helm template` against its pinned version.
+The Helm renderer uses `catalog-test` when a release has no explicit namespace.
+Set `RENDER_NAMESPACE` to test another namespace. Rendering is an offline check,
+not proof of live reconciliation or chart-specific relocation support.
 
 ## Bumping chart versions
 

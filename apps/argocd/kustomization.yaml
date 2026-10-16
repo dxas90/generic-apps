@@ -5,7 +5,6 @@ resources:
 - release.yaml
 configMapGenerator:
 - name: argocd-values
-  namespace: argocd
   files:
   - values.yaml
 generatorOptions:

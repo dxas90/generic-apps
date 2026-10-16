@@ -44,7 +44,7 @@ def releases(app_dir):
                 values = app_dir / "values.yaml"
             yield {
                 "name": d["metadata"]["name"],
-                "ns": d["metadata"]["namespace"],
+                "ns": d["metadata"].get("namespace", os.environ.get("RENDER_NAMESPACE", "catalog-test")),
                 "kind": kind,
                 "url": url,
                 "chart": chart.get("chart"),

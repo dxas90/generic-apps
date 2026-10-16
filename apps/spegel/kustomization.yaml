@@ -5,7 +5,6 @@ resources:
 - release.yaml
 configMapGenerator:
 - name: spegel-values
-  namespace: kube-system
   files:
   - values.yaml
 generatorOptions:

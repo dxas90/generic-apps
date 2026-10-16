@@ -8,7 +8,7 @@ otelcol.processor.batch "traces" {
 }
 otelcol.exporter.otlp "tempo" {
   client {
-    endpoint = "tempo.observability.svc.cluster.local:4317"
+    endpoint = "tempo:4317"
     tls { insecure = true }
   }
 }

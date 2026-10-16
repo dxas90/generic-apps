@@ -2,7 +2,6 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
   name: grafana-operator
-  namespace: observability
 spec:
   interval: 1h
   url: oci://ghcr.io/grafana/helm-charts/grafana-operator
