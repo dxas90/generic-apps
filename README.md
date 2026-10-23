@@ -69,7 +69,7 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (34)
+## Apps (36)
 
 | App | Chart source |
 |-----|--------------|
@@ -107,6 +107,8 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | gatus | twin.github.io |
 | victoria-metrics | ghcr/victoriametrics (OCI) |
 | victoria-logs | ghcr/victoriametrics (OCI) |
+| gitlab-agent | charts.gitlab.io |
+| gitlab-runner | charts.gitlab.io |
 
 ## Namespace ownership
 
