@@ -1,0 +1,4 @@
+replicas: 1
+fullnameOverride: gitlab-agent
+image:
+  tag: v18.6.1

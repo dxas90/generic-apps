@@ -1,0 +1,70 @@
+imagePullPolicy: IfNotPresent
+fullnameOverride: gitlab-runner
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["list", "get", "watch", "create", "delete"]
+    - apiGroups: [""]
+      resources: ["pods/exec"]
+      verbs: ["create"]
+    - apiGroups: [""]
+      resources: ["pods/log"]
+      verbs: ["get"]
+    - apiGroups: [""]
+      resources: ["pods/attach"]
+      verbs: ["list", "get", "create", "delete", "update"]
+    - apiGroups: [""]
+      resources: ["secrets"]
+      verbs: ["list", "get", "create", "delete", "update"]
+    - apiGroups: [""]
+      resources: ["configmaps"]
+      verbs: ["list", "get", "create", "delete", "update"]
+runners:
+  privileged: true
+  name: "gitlab-k8s-runner"
+  extraEnvs:
+    - name: NODE_OPTIONS
+      value: "--max-old-space-size=2304"
+  # runner configuration: https://docs.gitlab.com/runner/configuration/advanced-configuration/#the-runnerskubernetes-section
+  config: |
+    [[runners]]
+      name = "gitlab-k8s-runner"
+      request_concurrency = 4
+      environment = ["NODE_OPTIONS='--max-old-space-size=2304'"]
+      [runners.feature_flags]
+        FF_USE_FASTZIP = true
+        FF_USE_ADAPTIVE_REQUEST_CONCURRENCY = true
+        # FF_USE_ADVANCED_POD_SPEC_CONFIGURATION = true
+      [runners.kubernetes]
+        namespace = "{{.Release.Namespace}}"
+        image = "node:26-trixie"
+        cpu_request = "1500m"
+        cpu_limit = "1500m"
+        memory_request = "3072Mi"
+        memory_limit = "3072Mi"
+        logs_base_dir = "/tmp"
+        scripts_base_dir = "/tmp"
+        cap_add = ["SYS_ADMIN", "SETUID", "SETGID", "CHOWN"]
+        [[runners.kubernetes.volumes.host_path]]
+          name = "buildah-storage"
+          mount_path = "/var/lib/containers/storage"
+          host_path = "/var/lib/gitlab-buildah-storage"
+      [runners.kubernetes.build_container_security_context]
+        [runners.kubernetes.build_container_security_context.seccomp_profile]
+          type = "Unconfined"
+      [runners.kubernetes.build_container_security_context.app_armor_profile]
+        type = "Unconfined"
+      [[runners.kubernetes.pod_spec]]
+        name = "build envvars"
+        patch = '''
+          containers:
+          - env:
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=2304"
+            name: build
+        '''
+        patch_type = "merge"
