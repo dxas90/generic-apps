@@ -3,6 +3,12 @@ global:
 configs:
   params:
     server.insecure: false
+    # Enable the ApplicationSet SCM/PR provider generators.
+    # Required since ArgoCD 2.5 — disabled by default as a security gate.
+    applicationsetcontroller.enable.scm.providers: "true"
+    # Allowlist of SCM provider base URLs the ApplicationSet controller
+    # may contact. Required since ArgoCD 2.9.
+    applicationsetcontroller.allowed.scm.providers: "https://gitlab.com,https://github.com"
   cm:
     application.resourceTrackingMethod: annotation
 controller:
