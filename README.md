@@ -69,7 +69,7 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (36)
+## Apps (37)
 
 | App | Chart source |
 |-----|--------------|
@@ -109,6 +109,7 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | victoria-logs | ghcr/victoriametrics (OCI) |
 | gitlab-agent | charts.gitlab.io |
 | gitlab-runner | charts.gitlab.io |
+| pangolin-gateway-controller | github.com/dxas90/pangolin-gateway-controller (GitRepository) |
 
 ## Namespace ownership
 
