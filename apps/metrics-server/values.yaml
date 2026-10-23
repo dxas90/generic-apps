@@ -7,3 +7,6 @@ resources:
     memory: 512Mi
 args:
 - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+- --kubelet-insecure-tls
+- --kubelet-use-node-status-port
+- --metric-resolution=15s
