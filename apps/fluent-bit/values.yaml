@@ -6,5 +6,11 @@ resources:
     cpu: 1000m
     memory: 512Mi
 config:
-  outputs: "[OUTPUT]\n    Name loki\n    Match kube.*\n    Host loki-gateway\n\
-    \    Port 80\n    Labels job=fluent-bit\n    Auto_Kubernetes_Labels on\n"
+  outputs: |
+    [OUTPUT]
+        Name loki
+        Match kube.*
+        Host loki-gateway
+        Port 80
+        Labels job=fluent-bit
+        Auto_Kubernetes_Labels on
