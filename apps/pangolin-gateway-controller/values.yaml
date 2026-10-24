@@ -27,7 +27,7 @@ pangolin:
   apiKey: ""
   orgId: ""
   baseUrl: https://api.pangolin.net/v1
-  newtImage: fosrl/newt:1.18.1
+  newtImage: fosrl/newt:1.19.0
 
 controller:
   gatewayClassName: pangolin
