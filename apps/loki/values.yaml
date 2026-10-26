@@ -41,8 +41,6 @@ chunksCache:
   enabled: false
 resultsCache:
   enabled: false
-minio:
-  enabled: false
 gateway:
   enabled: true
   resources:
