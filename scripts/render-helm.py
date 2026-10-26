@@ -28,7 +28,7 @@ def releases(app_dir):
     sources = {}
     for f in app_dir.glob("*.yaml"):
         for d in load(f):
-            if d.get("kind") in ("HelmRepository", "OCIRepository"):
+            if d.get("kind") in ("HelmRepository", "OCIRepository", "GitRepository"):
                 s = d["spec"]
                 sources[d["metadata"]["name"]] = (d["kind"], s["url"], (s.get("ref") or {}).get("tag"))
     for f in sorted(app_dir.glob("release*.yaml")):
@@ -38,7 +38,10 @@ def releases(app_dir):
             spec = d["spec"]
             chart = (spec.get("chart") or {}).get("spec") or {}
             src = (chart.get("sourceRef") or {}).get("name") or spec["chartRef"]["name"]
-            kind, url, tag = sources[src]
+            kind, url, tag = sources.get(src, (None, None, None))
+            if kind in (None, "GitRepository"):
+                # helm template cannot pull from git URLs; skip render
+                continue
             values = app_dir / f.name.replace("release", "values")
             if not values.exists():
                 values = app_dir / "values.yaml"
