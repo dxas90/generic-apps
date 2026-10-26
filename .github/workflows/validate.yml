@@ -1,0 +1,93 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  HELM_VERSION: "4.3.1"
+  KUSTOMIZE_VERSION: "5.8.3"
+  KUBE_VERSION: "1.33.0"
+
+jobs:
+  # ── 1. YAML syntax (fast gate — runs first, no tool downloads) ────────────────
+  lint:
+    name: YAML lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint all app YAML files
+        run: |
+          yamllint -d '{
+            extends: relaxed,
+            rules: {
+              line-length: {max: 200},
+              truthy: disable
+            }
+          }' apps/
+
+  # ── 2. kustomize build every app ──────────────────────────────────────────────
+  validate-kustomize:
+    name: kustomize build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kustomize v${{ env.KUSTOMIZE_VERSION }}
+        run: |
+          curl -fsSL \
+            "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz -C /usr/local/bin
+          kustomize version
+
+      - name: Build all apps
+        run: |
+          fail=0
+          for a in apps/*/; do
+            if kustomize build "$a" >/dev/null 2>&1; then
+              echo "OK   ${a%/}"
+            else
+              echo "FAIL ${a%/}"
+              kustomize build "$a" 2>&1 | tail -6
+              fail=1
+            fi
+          done
+          exit $fail
+
+  # ── 3. helm template render (fetches every pinned chart over the network) ─────
+  validate-helm:
+    name: helm template render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install pyyaml
+        run: pip install pyyaml
+
+      - name: Install helm v${{ env.HELM_VERSION }}
+        run: |
+          curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz" \
+            | tar -xz -C /tmp
+          mv /tmp/linux-amd64/helm /usr/local/bin/helm
+          helm version
+
+      - name: Render all charts
+        run: python scripts/render-helm.py
+        env:
+          KUBE_VERSION: ${{ env.KUBE_VERSION }}
