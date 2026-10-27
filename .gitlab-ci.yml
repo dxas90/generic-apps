@@ -75,16 +75,16 @@ publish:
         --path=./apps \
         --source="${CI_PROJECT_URL}.git" \
         --revision="${CI_COMMIT_REF_NAME}@sha1:${CI_COMMIT_SHA}" \
-        --credentials="${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}"
+        --creds="${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}"
 
       flux tag artifact \
         oci://${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} \
         --tag latest \
-        --credentials="${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}"
+        --creds="${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}"
 
       if [ -n "${CI_COMMIT_TAG}" ]; then
         flux tag artifact \
           oci://${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} \
           --tag "${CI_COMMIT_TAG}" \
-          --credentials="${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}"
+          --creds="${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}"
       fi

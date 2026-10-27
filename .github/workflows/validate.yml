@@ -118,14 +118,14 @@ jobs:
             --path=./apps \
             --source="${{ github.server_url }}/${{ github.repository }}.git" \
             --revision="${{ github.ref_name }}@sha1:${{ github.sha }}" \
-            --credentials="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
 
       - name: Tag as latest
         run: |
           flux tag artifact \
             oci://ghcr.io/${{ github.repository }}:${{ github.sha }} \
             --tag latest \
-            --credentials="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
 
       - name: Tag with semver
         if: startsWith(github.ref, 'refs/tags/')
@@ -133,4 +133,4 @@ jobs:
           flux tag artifact \
             oci://ghcr.io/${{ github.repository }}:${{ github.sha }} \
             --tag "${{ github.ref_name }}" \
-            --credentials="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
