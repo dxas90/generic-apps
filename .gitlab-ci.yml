@@ -55,7 +55,7 @@ validate:helm:
 # ── push OCI artifact → GitLab Container Registry ─────────────────────────────
 publish:
   stage: publish
-  image: alpine:3.22
+  image: alpine:3.24
   needs:
     - validate:kustomize
     - validate:helm
