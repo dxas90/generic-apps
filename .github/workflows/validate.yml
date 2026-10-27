@@ -3,6 +3,7 @@ name: validate
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -10,6 +11,7 @@ env:
   HELM_VERSION: "4.3.1"
   KUSTOMIZE_VERSION: "5.8.3"
   KUBE_VERSION: "1.33.0"
+  FLUX_VERSION: "2.4.0"
 
 jobs:
   # ── 1. YAML syntax (fast gate — runs first, no tool downloads) ────────────────
@@ -89,3 +91,46 @@ jobs:
         run: python scripts/render-helm.py
         env:
           KUBE_VERSION: ${{ env.KUBE_VERSION }}
+
+  # ── 4. push OCI artifact → ghcr.io (main branch + version tags only) ─────────
+  publish:
+    name: Publish OCI artifact → ghcr.io
+    runs-on: ubuntu-latest
+    needs: [lint, validate-kustomize, validate-helm]
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install flux v${{ env.FLUX_VERSION }}
+        run: |
+          curl -fsSL \
+            "https://github.com/fluxcd/flux2/releases/download/v${FLUX_VERSION}/flux_${FLUX_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz -C /usr/local/bin
+          flux version --client
+
+      - name: Push OCI artifact
+        run: |
+          flux push artifact \
+            oci://ghcr.io/${{ github.repository }}:${{ github.sha }} \
+            --path=./apps \
+            --source="${{ github.server_url }}/${{ github.repository }}.git" \
+            --revision="${{ github.ref_name }}@sha1:${{ github.sha }}" \
+            --credentials="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Tag as latest
+        run: |
+          flux tag artifact \
+            oci://ghcr.io/${{ github.repository }}:${{ github.sha }} \
+            --tag latest \
+            --credentials="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Tag with semver
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          flux tag artifact \
+            oci://ghcr.io/${{ github.repository }}:${{ github.sha }} \
+            --tag "${{ github.ref_name }}" \
+            --credentials="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
