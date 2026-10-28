@@ -3,7 +3,7 @@
 # See https://hub.docker.com/r/maximhq/bifrost/tags
 image:
   repository: docker.io/maximhq/bifrost
-  tag: "2.3.1"
+  tag: "2.3.2"
   pullPolicy: IfNotPresent
 
 replicaCount: 1
