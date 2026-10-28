@@ -1,1 +1,2 @@
-# Default values — override in your consumer kustomization
+# clusterName is required by the chart. Override this in your consumer kustomization.
+clusterName: placeholder
