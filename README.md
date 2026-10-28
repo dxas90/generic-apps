@@ -69,10 +69,12 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (38)
+## Apps (40)
 
 | App | Chart source |
 |-----|--------------|
+| aws-efs-csi-driver | kubernetes-sigs.github.io/aws-efs-csi-driver |
+| aws-load-balancer-controller | aws.github.io/eks-charts |
 | cert-manager | charts.jetstack.io |
 | external-secrets | charts.external-secrets.io |
 | external-dns | kubernetes-sigs/external-dns |
