@@ -1,7 +1,7 @@
 [tools]
 helm = "4.3.1"
 kustomize = "5.8.3"
-flux2 = "2.9.6"
+flux2 = "2.10.0"
 
 [tasks.validate]
 description = "Kustomize-build every app"
