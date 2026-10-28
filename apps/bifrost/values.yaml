@@ -1,0 +1,141 @@
+# ── Image ────────────────────────────────────────────────────────────────────
+# REQUIRED: chart will not render without a tag.
+# See https://hub.docker.com/r/maximhq/bifrost/tags
+image:
+  repository: docker.io/maximhq/bifrost
+  tag: "2.3.1"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+# ── Encryption key (REQUIRED at runtime) ─────────────────────────────────────
+# Create the secret before deploying:
+#   kubectl create secret generic bifrost-encryption-key \
+#     --from-literal=encryption-key="$(openssl rand -base64 32)"
+# Then reference it below. All nodes in a cluster must share the same key.
+bifrost:
+  encryptionKeySecret:
+    name: "bifrost-encryption-key"
+    key: "encryption-key"
+
+  # ── Authentication ──────────────────────────────────────────────────────────
+  # Enable to protect the dashboard and management API.
+  # Override credentials in your consumer overlay or via an existingSecret.
+  authConfig:
+    isEnabled: false
+    adminUsername: ""
+    adminPassword: ""
+    # existingSecret: ""          # k8s secret with username/password keys
+    # usernameKey: "username"
+    # passwordKey: "password"
+
+  # ── Inference auth ──────────────────────────────────────────────────────────
+  client:
+    enforceAuthOnInference: true  # require virtual keys / API keys on LLM endpoints
+    logRetentionDays: 365
+    maxRequestBodySizeMb: 100
+    disableContentLogging: false  # set true to stop logging request/response bodies
+    dropExcessRequests: false
+
+  # ── Environment label ───────────────────────────────────────────────────────
+  # Short label (max 10 chars) shown in the sidebar — useful for multi-env setups.
+  # envLabel: "staging"
+
+  # ── Source-of-truth mode ────────────────────────────────────────────────────
+  # "split" (default): file + DB coexist.
+  # "config.json": sections in values.yaml are authoritative; DB-only rows pruned on boot.
+  # sourceOfTruth: "split"
+
+# ── Service ───────────────────────────────────────────────────────────────────
+service:
+  type: ClusterIP
+  port: 8080
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+# Enable in your consumer overlay and set the host + className for your cluster.
+ingress:
+  enabled: false
+  className: ""
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: bifrost.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  # tls:
+  #   - secretName: bifrost-tls
+  #     hosts:
+  #       - bifrost.example.com
+
+# ── Resources ─────────────────────────────────────────────────────────────────
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+# ── Storage ───────────────────────────────────────────────────────────────────
+storage:
+  mode: sqlite  # sqlite (zero-dep default) or postgres
+
+  # Persistent volume for SQLite data.
+  # Not needed when mode=postgres.
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    # storageClass: ""
+    # existingClaim: ""
+
+  # Switch to postgres for production HA deployments:
+  # mode: postgres
+  # postgresql:
+  #   enabled: true           # deploy bundled Postgres subchart
+  #   external:
+  #     enabled: false
+  #     host: "postgres.example.com"
+  #     port: 5432
+  #     database: "bifrost"
+  #     username: ""
+  #     existingSecret: ""
+  #     passwordKey: "password"
+
+# ── Autoscaling ───────────────────────────────────────────────────────────────
+# Enable for production; HPA stabilisation is pre-tuned for LLM streaming.
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+# ── HA cluster mode ───────────────────────────────────────────────────────────
+# Required when replicaCount > 1. Needs shared postgres storage + Redis.
+# bifrost:
+#   cluster:
+#     enabled: true
+#     discovery:
+#       enabled: true
+#       type: kubernetes   # in-cluster peer discovery via pod labels
+
+# ── Vector store (semantic cache / routing) ───────────────────────────────────
+vectorStore:
+  enabled: false
+  type: none   # none | weaviate | redis | qdrant | pinecone | chromem
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+# bifrost:
+#   metrics:
+#     enabled: true
+#     serviceMonitor:
+#       enabled: true
+
+# ── Graceful shutdown ─────────────────────────────────────────────────────────
+# Pre-tuned for LLM streaming — leave these unless you have specific needs.
+terminationGracePeriodSeconds: 60
+lifecycle:
+  preStop:
+    exec:
+      command: ["sh", "-c", "sleep 15"]

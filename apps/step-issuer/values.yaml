@@ -1,0 +1,3 @@
+# Default values — override in your consumer kustomization
+# Note: step-issuer requires step-ca (step-certificates) running in the cluster.
+# Set stepIssuer.stepCaUrl to the step-ca service URL in your consumer overlay.

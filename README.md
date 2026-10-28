@@ -69,12 +69,13 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (40)
+## Apps (43)
 
 | App | Chart source |
 |-----|--------------|
 | aws-efs-csi-driver | kubernetes-sigs.github.io/aws-efs-csi-driver |
 | aws-load-balancer-controller | aws.github.io/eks-charts |
+| bifrost | maximhq.github.io/bifrost/helm-charts |
 | cert-manager | charts.jetstack.io |
 | external-secrets | charts.external-secrets.io |
 | external-dns | kubernetes-sigs/external-dns |
@@ -82,6 +83,8 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | reloader | stakater |
 | coredns | ghcr/coredns (OCI) |
 | spegel | ghcr/spegel-org (OCI) |
+| step-certificates | smallstep.github.io/helm-charts |
+| step-issuer | smallstep.github.io/helm-charts |
 | csi-driver-nfs | kubernetes-csi |
 | cilium | quay.io/cilium (OCI) |
 | keda | kedacore |

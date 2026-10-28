@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: step-issuer
+spec:
+  interval: 15m
+  timeout: 10m
+  releaseName: step-issuer
+  maxHistory: 3
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+  - kind: ConfigMap
+    name: step-issuer-values
+    valuesKey: values.yaml
+  chart:
+    spec:
+      chart: step-issuer
+      version: 1.11.0
+      sourceRef:
+        kind: HelmRepository
+        name: smallstep
