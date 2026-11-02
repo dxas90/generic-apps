@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: ghcr.io/dxas90/pangolin-gateway-controller
   pullPolicy: IfNotPresent
-  tag: "0.11.1"
+  tag: "0.12.0"
 
 serviceAccount:
   create: true
