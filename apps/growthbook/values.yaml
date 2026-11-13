@@ -1,0 +1,72 @@
+# ── Frontend ──────────────────────────────────────────────────────────────────
+# APP_ORIGIN: full public URL of the frontend (used in invite links, OAuth callbacks)
+# API_HOST:   full public URL of the backend API
+# Override both in your consumer overlay.
+global:
+  env:
+    - name: APP_ORIGIN
+      value: https://growthbook.example.com
+    - name: ENCRYPTION_KEY
+      valueFrom:
+        secretKeyRef:
+          name: growthbook-secrets
+          key: encryption-key
+
+frontend:
+  replicaCount: 1
+  env:
+    - name: API_HOST
+      value: https://growthbook-api.example.com
+  service:
+    port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: false
+
+# ── Backend ───────────────────────────────────────────────────────────────────
+backend:
+  replicaCount: 1
+  mongodbEnabled: true   # set false + provide mongodbUri when using external MongoDB
+  # mongodbUri: mongodb://user:pass@mongo-host:27017/growthbook
+  volumeClaim:
+    enabled: true        # PVC for local file uploads; disable when using S3/GCS
+  service:
+    port: 3100
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: false
+
+# ── Bundled MongoDB ───────────────────────────────────────────────────────────
+# Disable for production — use an external managed MongoDB instead.
+# Set backend.mongodbEnabled=false and backend.mongodbUri when disabling.
+mongodb:
+  enabled: true
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+# Enable and set hosts in your consumer overlay.
+ingress:
+  enabled: false
+  className: ""
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: growthbook.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  # tls:
+  #   - secretName: growthbook-tls
+  #     hosts:
+  #       - growthbook.example.com

@@ -69,7 +69,7 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (43)
+## Apps (44)
 
 | App | Chart source |
 |-----|--------------|
@@ -78,6 +78,7 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | bifrost | maximhq.github.io/bifrost/helm-charts |
 | cert-manager | charts.jetstack.io |
 | external-secrets | charts.external-secrets.io |
+| growthbook | ghcr.io/growthbook/charts (OCI) |
 | external-dns | kubernetes-sigs/external-dns |
 | metrics-server | kubernetes-sigs/metrics-server |
 | reloader | stakater |
