@@ -1,7 +1,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: gitlab
+  name: gitlab-runner
   labels:
     app.kubernetes.io/component: agentk
     app.kubernetes.io/created-by: gitlab
