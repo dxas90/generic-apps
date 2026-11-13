@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: knative-operator
+spec:
+  interval: 15m
+  timeout: 10m
+  releaseName: knative-operator
+  maxHistory: 3
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+  valuesFrom:
+  - kind: ConfigMap
+    name: knative-operator-values
+    valuesKey: values.yaml
+  chart:
+    spec:
+      chart: knative-operator
+      version: v1.24.0
+      sourceRef:
+        kind: HelmRepository
+        name: knative-operator

@@ -69,7 +69,7 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (45)
+## Apps (46)
 
 | App | Chart source |
 |-----|--------------|
@@ -90,6 +90,7 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | csi-driver-nfs | kubernetes-csi |
 | cilium | quay.io/cilium (OCI) |
 | keda | kedacore |
+| knative-operator | knative.github.io/operator |
 | kyverno | kyverno |
 | node-feature-discovery | kubernetes-sigs |
 | cloudnative-pg | cloudnative-pg |

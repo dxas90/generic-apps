@@ -1,0 +1,45 @@
+# ── Knative Operator ──────────────────────────────────────────────────────────
+# This chart installs the Knative Operator only.
+# To deploy Knative Serving or Eventing, create the corresponding CRs in your
+# consumer overlay AFTER this HelmRelease is Ready:
+#
+#   KnativeServing  — installs Knative Serving (HTTP triggers, revisions, routes)
+#   KnativeEventing — installs Knative Eventing (brokers, triggers, channels)
+#
+# Minimal KnativeServing example:
+#   apiVersion: operator.knative.dev/v1beta1
+#   kind: KnativeServing
+#   metadata:
+#     name: knative-serving
+#     namespace: knative-serving
+#
+# Minimal KnativeEventing example:
+#   apiVersion: operator.knative.dev/v1beta1
+#   kind: KnativeEventing
+#   metadata:
+#     name: knative-eventing
+#     namespace: knative-eventing
+
+knative_operator:
+  knative_operator:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 1000m
+        memory: 1000Mi
+
+  operator_webhook:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 500m
+        memory: 500Mi
+
+  # ── Multi-cluster support ───────────────────────────────────────────────────
+  # Enable when managing Knative across multiple clusters via Cluster Inventory API.
+  multicluster:
+    enabled: false
