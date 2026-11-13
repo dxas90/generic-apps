@@ -24,8 +24,8 @@ spec:
     valuesKey: values.yaml
   chart:
     spec:
-      chart: flipt
-      version: 0.88.0
+      chart: flipt-v2
+      version: 2.14.1
       sourceRef:
         kind: HelmRepository
         name: flipt

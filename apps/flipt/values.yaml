@@ -23,15 +23,14 @@ ingress:
   #       - flipt.example.com
 
 # ── Persistence ───────────────────────────────────────────────────────────────
-# Enable for the default SQLite backend so data survives pod restarts.
-# Disable when using a remote database (PostgreSQL, MySQL, CockroachDB).
+# Needed for the default local storage backend.
+# Disable when using a Git or S3/GCS/Azure backend.
 persistence:
   enabled: true
   accessModes:
     - ReadWriteOnce
   size: 5Gi
   # storageClass: ""
-  # existingClaim: ""
 
 # ── Resources ─────────────────────────────────────────────────────────────────
 resources:
@@ -49,7 +48,7 @@ autoscaling:
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
 
-# ── Flipt application config ──────────────────────────────────────────────────
+# ── Flipt v2 application config ───────────────────────────────────────────────
 flipt:
   config:
     log:
@@ -62,33 +61,52 @@ flipt:
       http_port: 8080
       grpc_port: 9000
 
-    # ── Database ────────────────────────────────────────────────────────────────
-    # Default: SQLite at /var/opt/flipt/flipt.db (requires persistence.enabled=true)
-    # For production switch to a managed database:
-    # db:
-    #   url: postgres://user:pass@postgres-host:5432/flipt?sslmode=require
-    db:
-      url: file:/var/opt/flipt/flipt.db
-      max_idle_conn: 2
-      max_open_conn: 0
-
-    # ── Authentication ──────────────────────────────────────────────────────────
-    # Uncomment to enable static token or OIDC auth.
-    # authentication:
-    #   required: false
-    #   methods:
-    #     token:
-    #       enabled: true
-    #       bootstrap:
-    #         token: ""          # set via secret / env FLIPT_AUTHENTICATION_METHODS_TOKEN_BOOTSTRAP_TOKEN
-    #     oidc:
-    #       enabled: false
-
-    # ── Storage backend (alternative to DB) ────────────────────────────────────
-    # Use Git, S3, GCS, Azure, or OCI as a read-only flag source.
+    # ── Storage backend ─────────────────────────────────────────────────────────
+    # v2 is Git-native. Default is local FS (good for dev/single-node).
+    # For production, point at a Git repo:
     # storage:
     #   type: git
     #   git:
     #     repository: https://github.com/org/flags.git
     #     ref: main
-    #     directory: flipt
+    #     polling_interval: 30s
+    #     authentication:
+    #       token:
+    #         access_token: ""   # or use extraEnvVars / envFrom for secret injection
+    storage:
+      type: local
+      local:
+        path: /var/opt/flipt
+
+    # ── Authentication ──────────────────────────────────────────────────────────
+    # authentication:
+    #   required: true
+    #   session:
+    #     domain: flipt.example.com
+    #     secure: true
+    #   methods:
+    #     token:
+    #       enabled: true
+    #     oidc:
+    #       enabled: true
+    #       providers:
+    #         my-provider:
+    #           issuer_url: https://your-idp.com
+    #           client_id: ""
+    #           client_secret: ""
+    #           redirect_address: https://flipt.example.com/auth/v1/method/oidc/my-provider/callback
+
+    # ── Multi-environment (v2 feature) ─────────────────────────────────────────
+    # environments:
+    #   production:
+    #     name: Production
+    #     storage:
+    #       type: git
+    #       git:
+    #         repository: https://github.com/org/flags.git
+    #         ref: production
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+metrics:
+  serviceMonitor:
+    enabled: false
