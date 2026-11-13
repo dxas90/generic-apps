@@ -69,7 +69,7 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (44)
+## Apps (45)
 
 | App | Chart source |
 |-----|--------------|
@@ -80,6 +80,7 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | external-secrets | charts.external-secrets.io |
 | growthbook | ghcr.io/growthbook/charts (OCI) |
 | external-dns | kubernetes-sigs/external-dns |
+| flipt | helm.flipt.io |
 | metrics-server | kubernetes-sigs/metrics-server |
 | reloader | stakater |
 | coredns | ghcr/coredns (OCI) |
