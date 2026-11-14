@@ -62,21 +62,20 @@ flipt:
       grpc_port: 9000
 
     # ── Storage backend ─────────────────────────────────────────────────────────
-    # v2 is Git-native. Default is local FS (good for dev/single-node).
-    # For production, point at a Git repo:
+    # v2 storage is a named map of Git remote backends (not a type: local block).
+    # By default no storage entry is set — Flipt uses its built-in local store,
+    # backed by the persistence PVC below.
+    #
+    # To add a Git remote as a named storage backend:
     # storage:
-    #   type: git
-    #   git:
-    #     repository: https://github.com/org/flags.git
-    #     ref: main
-    #     polling_interval: 30s
-    #     authentication:
-    #       token:
-    #         access_token: ""   # or use extraEnvVars / envFrom for secret injection
-    storage:
-      type: local
-      local:
-        path: /var/opt/flipt
+    #   my-flags:
+    #     remote: https://github.com/org/flags.git
+    #     branch: main
+    #     fetch_policy: strict       # strict | lenient
+    #     backend:
+    #       type: local              # memory | local (local persists to disk)
+    #     # signature:               # GPG commit signing (Pro)
+    #     #   key: ""
 
     # ── Authentication ──────────────────────────────────────────────────────────
     # authentication:
@@ -97,14 +96,11 @@ flipt:
     #           redirect_address: https://flipt.example.com/auth/v1/method/oidc/my-provider/callback
 
     # ── Multi-environment (v2 feature) ─────────────────────────────────────────
+    # environments map named environments to storage backends.
     # environments:
     #   production:
-    #     name: Production
-    #     storage:
-    #       type: git
-    #       git:
-    #         repository: https://github.com/org/flags.git
-    #         ref: production
+    #     storage: my-flags          # references a key in the storage map above
+    #     default: true
 
 # ── Prometheus metrics ────────────────────────────────────────────────────────
 metrics:
