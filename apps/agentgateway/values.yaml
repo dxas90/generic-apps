@@ -1,0 +1,65 @@
+# ── Controller ────────────────────────────────────────────────────────────────
+# The controller manages the GatewayClass "agentgateway" and provisions
+# data-plane proxy pods for each Gateway resource it reconciles.
+controller:
+  replicaCount: 1
+  logLevel: info
+
+  service:
+    type: ClusterIP
+    ports:
+      agwGrpc: 9978    # xDS gRPC — controller → proxy
+      health: 9093
+      metrics: 9092
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  # xDS transport between controller and proxies.
+  # Change to "plaintext" only for dev/local clusters without cert-manager.
+  xds:
+    mode: tls
+
+# ── RBAC ──────────────────────────────────────────────────────────────────────
+rbac:
+  create: true
+  # Restrict the namespaces the controller can write Gateway resources to.
+  # Empty list = cluster-wide (default). Useful for multi-tenant setups.
+  gatewayNamespaces: []
+
+# ── Istio integration ─────────────────────────────────────────────────────────
+# Enable when Istio CRDs (ServiceEntry, WorkloadEntry) are installed.
+# Set autoEnabled=true to mesh-integrate all built-in-class gateways by default.
+istio:
+  enabled: true    # controls RBAC generation only; set false if Istio is absent
+  autoEnabled: false
+
+# ── AI / Inference Extension ──────────────────────────────────────────────────
+# Enable to use agentgateway as an Inference Extension router
+# (requires Gateway API Inference Extension CRDs).
+inferenceExtension:
+  enabled: false
+
+# AgentgatewayModel API — exposes LLM model routing via CRDs.
+agentgatewayModels:
+  enabled: true
+
+# ── Monitoring ────────────────────────────────────────────────────────────────
+# Enable when kube-prometheus-stack (Prometheus Operator) is installed.
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+  proxy:
+    podMonitor:
+      enabled: true
+  grafanaDashboard:
+    enabled: true
+    labels:
+      grafana_dashboard: "1"

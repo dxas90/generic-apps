@@ -69,10 +69,11 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (46)
+## Apps (47)
 
 | App | Chart source |
 |-----|--------------|
+| agentgateway | cr.agentgateway.dev/charts (OCI) |
 | aws-efs-csi-driver | kubernetes-sigs.github.io/aws-efs-csi-driver |
 | aws-load-balancer-controller | aws.github.io/eks-charts |
 | bifrost | maximhq.github.io/bifrost/helm-charts |
