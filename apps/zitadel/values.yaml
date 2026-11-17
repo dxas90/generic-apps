@@ -1,0 +1,103 @@
+zitadel:
+  # ── External access ────────────────────────────────────────────────────────
+  # ExternalDomain MUST be set in your consumer overlay.
+  # It drives the OIDC issuer URL, redirect URIs, and cookie domain.
+  configmapConfig:
+    ExternalSecure: true
+    ExternalDomain: "auth.example.com"
+    # ExternalPort: 443   # omit when using standard 443
+
+  # ── Masterkey (REQUIRED) ───────────────────────────────────────────────────
+  # Used for symmetric encryption of secrets inside ZITADEL.
+  # Generate once and store permanently — losing it means losing all encrypted data.
+  #
+  # Create the secret before deploying:
+  #   kubectl create secret generic zitadel-masterkey \
+  #     --from-literal=masterkey="$(openssl rand -base64 32)"
+  #
+  # Then reference it here (recommended for production):
+  masterkeySecretName: "zitadel-masterkey"
+  # masterkeyAnnotations: {}
+
+  # ── Database ───────────────────────────────────────────────────────────────
+  # ZITADEL requires PostgreSQL 14+.
+  # Recommended: use an external managed database and provide the DSN via secret.
+  #
+  # Option A — DSN secret (recommended):
+  #   kubectl create secret generic zitadel-db \
+  #     --from-literal=ZITADEL_DATABASE_POSTGRES_DSN="postgres://zitadel:pass@host:5432/zitadel?sslmode=require"
+  # envVarsSecret: "zitadel-db"
+  #
+  # Option B — discrete fields in configmapConfig:
+  # configmapConfig:
+  #   Database:
+  #     Postgres:
+  #       Host: postgres.example.com
+  #       Port: 5432
+  #       Database: zitadel
+  #       User:
+  #         Username: zitadel
+  #         SSL:
+  #           Mode: require
+  #       Admin:
+  #         Username: postgres
+  #         SSL:
+  #           Mode: require
+
+# ── Bundled PostgreSQL subchart ────────────────────────────────────────────
+# For dev/quickstart only. Disable for production and use an external database.
+postgresql:
+  enabled: false
+  auth:
+    database: zitadel
+    username: zitadel
+    password: zitadel
+    postgresPassword: zitadel
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# ── Replicas ──────────────────────────────────────────────────────────────────
+replicaCount: 1
+
+# ── Service ───────────────────────────────────────────────────────────────────
+service:
+  type: ClusterIP
+  port: 8080
+  protocol: http2  # ZITADEL uses HTTP/2 (gRPC + Connect); set http for plain HTTP/1
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+# Enable and configure in your consumer overlay.
+ingress:
+  enabled: false
+  className: ""
+  # controller: nginx   # or "aws" for ALB; sets controller-specific annotations
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  #   nginx.ingress.kubernetes.io/backend-protocol: GRPC
+  hosts:
+    - host: auth.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  # tls:
+  #   - secretName: zitadel-tls
+  #     hosts:
+  #       - auth.example.com
+
+# ── Resources ─────────────────────────────────────────────────────────────────
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# ── Autoscaling ───────────────────────────────────────────────────────────────
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80

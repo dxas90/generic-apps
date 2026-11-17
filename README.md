@@ -69,7 +69,7 @@ valuesFrom:
 To override per-environment, regenerate the **same** ConfigMap name with
 `behavior: replace` from an overlay — no second `-overrides` ConfigMap needed.
 
-## Apps (47)
+## Apps (48)
 
 | App | Chart source |
 |-----|--------------|
@@ -98,6 +98,7 @@ To override per-environment, regenerate the **same** ConfigMap name with
 | dragonfly-operator | ghcr/dragonflydb (OCI) |
 | nats | nats-io |
 | vault | helm.releases.hashicorp.com |
+| zitadel | charts.zitadel.com |
 | openebs | openebs.github.io |
 | argocd | argoproj |
 | ingress-nginx | kubernetes/ingress-nginx |
