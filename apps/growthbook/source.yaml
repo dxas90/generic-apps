@@ -6,7 +6,7 @@ spec:
   interval: 1h
   url: oci://ghcr.io/growthbook/charts/growthbook
   ref:
-    tag: 5.2.0
+    tag: 5.2.1
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
