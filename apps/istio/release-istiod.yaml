@@ -27,7 +27,7 @@ spec:
   chart:
     spec:
       chart: istiod
-      version: 1.30.8
+      version: 1.32.0
       sourceRef:
         kind: HelmRepository
         name: istio
