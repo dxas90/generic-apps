@@ -25,7 +25,7 @@ spec:
   chart:
     spec:
       chart: flipt-v2
-      version: 2.14.1
+      version: 2.14.2
       sourceRef:
         kind: HelmRepository
         name: flipt
